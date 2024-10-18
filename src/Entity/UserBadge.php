@@ -13,7 +13,7 @@ class UserBadge
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'badge_id')]
+    #[ORM\ManyToOne(inversedBy: 'badge')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
