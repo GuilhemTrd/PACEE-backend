@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BadgeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +30,17 @@ class Badge
 
     #[ORM\Column]
     private ?bool $status = null;
+
+    /**
+     * @var Collection<int, UserBadge>
+     */
+    #[ORM\OneToMany(targetEntity: UserBadge::class, mappedBy: 'badge', orphanRemoval: true)]
+    private Collection $userBadges;
+
+    public function __construct()
+    {
+        $this->userBadges = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,36 @@ class Badge
     public function setStatus(bool $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserBadge>
+     */
+    public function getUserBadges(): Collection
+    {
+        return $this->userBadges;
+    }
+
+    public function addUserBadge(UserBadge $userBadge): static
+    {
+        if (!$this->userBadges->contains($userBadge)) {
+            $this->userBadges->add($userBadge);
+            $userBadge->setBadge($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserBadge(UserBadge $userBadge): static
+    {
+        if ($this->userBadges->removeElement($userBadge)) {
+            // set the owning side to null (unless already changed)
+            if ($userBadge->getBadge() === $this) {
+                $userBadge->setBadge(null);
+            }
+        }
 
         return $this;
     }
