@@ -67,20 +67,32 @@ class User
     /**
      * @var Collection<int, Discussion>
      */
-    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'user_id')]
+    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'user')]
     private Collection $discussions;
 
     /**
      * @var Collection<int, DiscussionComment>
      */
-    #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'user_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $discussionComments;
 
     /**
      * @var Collection<int, DiscussionLike>
      */
-    #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'user_id')]
+    #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'user')]
     private Collection $discussionLikes;
+
+    /**
+     * @var Collection<int, Article>
+     */
+    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'user')]
+    private Collection $articles;
+
+    /**
+     * @var Collection<int, ArticleLike>
+     */
+    #[ORM\OneToMany(targetEntity: ArticleLike::class, mappedBy: 'user')]
+    private Collection $articleLikes;
 
     public function __construct()
     {
@@ -88,6 +100,8 @@ class User
         $this->discussions = new ArrayCollection();
         $this->discussionComments = new ArrayCollection();
         $this->discussionLikes = new ArrayCollection();
+        $this->articles = new ArrayCollection();
+        $this->articleLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -370,4 +384,65 @@ class User
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Article>
+     */
+    public function getArticles(): Collection
+    {
+        return $this->articles;
+    }
+
+    public function addArticle(Article $article): static
+    {
+        if (!$this->articles->contains($article)) {
+            $this->articles->add($article);
+            $article->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticle(Article $article): static
+    {
+        if ($this->articles->removeElement($article)) {
+            // set the owning side to null (unless already changed)
+            if ($article->getUser() === $this) {
+                $article->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ArticleLike>
+     */
+    public function getArticleLikes(): Collection
+    {
+        return $this->articleLikes;
+    }
+
+    public function addArticleLike(ArticleLike $articleLike): static
+    {
+        if (!$this->articleLikes->contains($articleLike)) {
+            $this->articleLikes->add($articleLike);
+            $articleLike->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticleLike(ArticleLike $articleLike): static
+    {
+        if ($this->articleLikes->removeElement($articleLike)) {
+            // set the owning side to null (unless already changed)
+            if ($articleLike->getUser() === $this) {
+                $articleLike->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
