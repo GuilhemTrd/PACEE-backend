@@ -64,9 +64,30 @@ class User
     #[ORM\OneToMany(targetEntity: UserBadge::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $userBadges;
 
+    /**
+     * @var Collection<int, Discussion>
+     */
+    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'user_id')]
+    private Collection $discussions;
+
+    /**
+     * @var Collection<int, DiscussionComment>
+     */
+    #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'user_id', orphanRemoval: true)]
+    private Collection $discussionComments;
+
+    /**
+     * @var Collection<int, DiscussionLike>
+     */
+    #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'user_id')]
+    private Collection $discussionLikes;
+
     public function __construct()
     {
         $this->userBadges = new ArrayCollection();
+        $this->discussions = new ArrayCollection();
+        $this->discussionComments = new ArrayCollection();
+        $this->discussionLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -254,6 +275,96 @@ class User
             // set the owning side to null (unless already changed)
             if ($userBadge->getUser() === $this) {
                 $userBadge->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Discussion>
+     */
+    public function getDiscussions(): Collection
+    {
+        return $this->discussions;
+    }
+
+    public function addDiscussion(Discussion $discussion): static
+    {
+        if (!$this->discussions->contains($discussion)) {
+            $this->discussions->add($discussion);
+            $discussion->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussion(Discussion $discussion): static
+    {
+        if ($this->discussions->removeElement($discussion)) {
+            // set the owning side to null (unless already changed)
+            if ($discussion->getUser() === $this) {
+                $discussion->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DiscussionComment>
+     */
+    public function getDiscussionComments(): Collection
+    {
+        return $this->discussionComments;
+    }
+
+    public function addDiscussionComment(DiscussionComment $discussionComment): static
+    {
+        if (!$this->discussionComments->contains($discussionComment)) {
+            $this->discussionComments->add($discussionComment);
+            $discussionComment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussionComment(DiscussionComment $discussionComment): static
+    {
+        if ($this->discussionComments->removeElement($discussionComment)) {
+            // set the owning side to null (unless already changed)
+            if ($discussionComment->getUser() === $this) {
+                $discussionComment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DiscussionLike>
+     */
+    public function getDiscussionLikes(): Collection
+    {
+        return $this->discussionLikes;
+    }
+
+    public function addDiscussionLike(DiscussionLike $discussionLike): static
+    {
+        if (!$this->discussionLikes->contains($discussionLike)) {
+            $this->discussionLikes->add($discussionLike);
+            $discussionLike->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussionLike(DiscussionLike $discussionLike): static
+    {
+        if ($this->discussionLikes->removeElement($discussionLike)) {
+            // set the owning side to null (unless already changed)
+            if ($discussionLike->getUser() === $this) {
+                $discussionLike->setUser(null);
             }
         }
 
