@@ -18,10 +18,16 @@ security:
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
         api:
             pattern: ^/api
             stateless: true
             jwt: ~
+
+        refresh_jwt:  # Firewall dédié pour le refresh token
+            pattern: ^/api/token/refresh$
+            stateless: true
+            refresh_jwt: ~
 
         main:
             stateless: true
@@ -39,8 +45,9 @@ security:
     access_control:
         # Autoriser l'accès à /api pour tout le monde
         - { path: ^/api$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        # Autoriser l'accès sans authentification uniquement à la route /api/login
+        # Autoriser l'accès sans authentification uniquement à la route /api/login et /api/token/refresh
         - { path: ^/api/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/token/refresh$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # Pour toutes les autres routes API, l'authentification est requise
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
