@@ -9,10 +9,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ApiResource]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -445,4 +448,20 @@ class User
         return $this;
     }
 
+    public function getRoles(): array
+    {
+        // Assure que chaque utilisateur possède au moins le rôle ROLE_USER
+        $roles = ['ROLE_USER'];
+
+        return array_unique($roles);
+    }
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
 }

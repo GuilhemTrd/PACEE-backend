@@ -1,39 +1,54 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+
     providers:
-        users_in_memory: { memory: null }
+        users_in_memory:
+            entity:
+                class: App\Entity\User
+                property: email
+
     firewalls:
+        api_login:
+            pattern: ^/api/login$
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+        main:
+            stateless: true
+            provider: users_in_memory
+            jwt: ~
+
+            logout:
+                path: app_logout
+                invalidate_session: true
+
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Autoriser l'accès à /api pour tout le monde
+        - { path: ^/api$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # Autoriser l'accès sans authentification uniquement à la route /api/login
+        - { path: ^/api/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # Pour toutes les autres routes API, l'authentification est requise
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
         password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+                cost: 4
+                time_cost: 3
+                memory_cost: 10
