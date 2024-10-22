@@ -13,3 +13,53 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+# Ignore le répertoire des dépendances PHP (composer)
+vendor/
+
+# Ignorer les fichiers de cache
+var/cache/
+var/log/
+
+# Ignore les fichiers de sessions et les uploads
+var/sessions/
+var/uploads/
+
+# Ignore les fichiers de configuration générés
+.env.local
+.env.local.php
+.env.*.local
+.env.test.local
+
+# Ignore les fichiers d'IDE
+.idea/
+.vscode/
+
+# Ignore les fichiers et dossiers spécifiques au système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Ignore les logs et fichiers temporaires
+*.log
+*.temp
+
+# Ignore les fichiers de test
+phpunit.xml
+phpunit.xml.dist
+
+# Ignore les fichiers de migrations déjà générées mais non finalisées
+migrations/
+
+# Composer files that should be committed
+!composer.json
+!composer.lock
+
+# Ignore les dépendances de Node.js si tu utilises npm/yarn
+node_modules/
+
+# Ignore les fichiers de builds et artefacts générés
+/public/build/
+/public/uploads/
+/build/
+
+# Ignore les fichiers spécifiques à Mac ou Linux
+*.swp
