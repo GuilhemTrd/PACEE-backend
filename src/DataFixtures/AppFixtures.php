@@ -45,7 +45,7 @@ class AppFixtures extends Fixture
         $adminUser->setUsername('admin');
         $adminUser->setEmail('admin@admin.com');
         $adminUser->setFullName('Administrator');
-        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'admin'));
+        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'Admin123'));
         $adminUser->setRoles(['ROLE_ADMIN']); // Ajout du rôle admin
         $adminUser->setCreatedAt(new \DateTimeImmutable());
         $adminUser->setUpdatedAt(new \DateTime());
@@ -64,7 +64,8 @@ class AppFixtures extends Fixture
             $user->setUsername("user$i");
             $user->setEmail("user$i@example.com");
             $user->setFullName("User $i");
-            $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
+            $password = "User{$i}Pass1";
+            $user->setPassword($this->passwordHasher->hashPassword($user, $password));
             $user->setCreatedAt(new \DateTimeImmutable());
             $user->setUpdatedAt(new \DateTime());
             $user->setPalmares("Palmares User $i");
