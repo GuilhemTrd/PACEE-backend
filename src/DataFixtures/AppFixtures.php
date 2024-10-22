@@ -35,13 +35,7 @@ class AppFixtures extends Fixture
         $badge2 = new Badge();
         $badge2->setName('Champion');
         $badge2->setDescription('Badge pour avoir gagné une course.');
-        $badge2->setSvg('<svg width="46" height="46" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M8.25 21.75h7.5"></path>
-  <path d="M12 21.75v-6"></path>
-  <path d="M18 10.5c0-2.374-.004-6.31-.006-7.5a.75.75 0 0 0-.75-.75l-10.49.012a.75.75 0 0 0-.75.748c0 1.433-.006 6.055-.006 7.49 0 3.013 3.89 5.25 6 5.25S18 13.513 18 10.5Z"></path>
-  <path d="M6 4.5H2.25v.75c0 2.588 1.573 5.25 3.75 5.25"></path>
-  <path d="M18 4.5h3.75v.75c0 2.588-1.573 5.25-3.75 5.25"></path>
-</svg>');
+        $badge2->setSvg('<svg></svg>');
         $badge2->setCreatedAt(new \DateTimeImmutable());
         $badge2->setStatus(true);
         $manager->persist($badge2);
@@ -80,14 +74,22 @@ class AppFixtures extends Fixture
             $user->setTimeMarathon(new \DateTime('04:00:00'));
             $user->setStatus(true);
 
-            if ($i % 2 === 0) {
-                $user->addBadge($badge1);
-            } else {
-                $user->addBadge($badge2);
-            }
-
             $manager->persist($user);
             $users[] = $user;
+        }
+
+        // Attribution des badges via UserBadge
+        foreach ($users as $index => $user) {
+            $userBadge = new UserBadge();
+            $userBadge->setUser($user);
+
+            // Associe un badge selon l'index (pair/impair)
+            $badge = ($index % 2 === 0) ? $badge1 : $badge2;
+            $userBadge->setBadge($badge);
+            $userBadge->setAwardedAt(new \DateTimeImmutable());
+            $userBadge->setStatus(true);
+
+            $manager->persist($userBadge);
         }
 
         // Création de quelques discussions
@@ -126,16 +128,6 @@ class AppFixtures extends Fixture
             $like->setStatus(true);
 
             $manager->persist($like);
-        }
-
-        // Création de UserBadge (attribution de badges aux utilisateurs)
-        foreach ($users as $user) {
-            $userBadge = new UserBadge();
-            $userBadge->setUser($user);
-            $userBadge->setBadge($user->getBadges()[0]); // Associe le badge déjà attribué à l'utilisateur
-            $userBadge->setAwardedAt(new \DateTimeImmutable());
-            $userBadge->setStatus(true);
-            $manager->persist($userBadge);
         }
 
         // Sauvegarde des entités dans la base de données
