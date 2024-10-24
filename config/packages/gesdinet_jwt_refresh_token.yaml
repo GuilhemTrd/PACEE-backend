@@ -1,7 +1,7 @@
 gesdinet_jwt_refresh_token:
-    ttl: 2592000               # Durée de vie en secondes (30 jours)
-    ttl_update: true            # Mettre à jour la durée de vie à chaque rafraîchissement
+    ttl: 2592000
+    ttl_update: true
     user_provider: users_in_memory
     user_identity_field: email
-    manager_type: orm            # Doctrine ORM
-    refresh_token_entity: App\Entity\RefreshToken  # Ton entité
+    manager_type: orm
+    refresh_token_entity: App\Entity\RefreshToken

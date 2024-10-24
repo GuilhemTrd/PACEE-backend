@@ -63,3 +63,5 @@ node_modules/
 
 # Ignore les fichiers spécifiques à Mac ou Linux
 *.swp
+
+/config/jwt/private.pem

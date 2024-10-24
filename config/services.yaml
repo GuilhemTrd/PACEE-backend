@@ -20,8 +20,6 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\EventListener\AuthenticationSuccessListener:
+    App\EventListener\AuthenticationSuccessHandler:
         tags:
             - { name: 'kernel.event_listener', event: 'lexik_jwt_authentication.on_authentication_success', method: 'onAuthenticationSuccessResponse' }
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
