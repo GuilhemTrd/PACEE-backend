@@ -24,6 +24,7 @@ security:
 
         # Firewall principal
         main:
+            pattern: ^/(?!token/refresh)
             stateless: true
             provider: users_in_memory  # Spécifie explicitement le provider
             jwt: ~
@@ -36,9 +37,11 @@ security:
 
         # Firewall pour le rafraîchissement des tokens JWT
         refresh_jwt:
-            pattern: ^/api/token/refresh$
+            pattern: ^/token/refresh$
             stateless: true
-            refresh_jwt: ~
+            refresh_jwt:
+                check_path: /token/refresh
+                provider: users_in_memory
 
             # Configuration du logout
             logout:
@@ -52,7 +55,6 @@ security:
 
     access_control:
         - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/token/refresh$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/token/refresh$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY, methods: [GET, POST, PUT, DELETE] }
-        - { path: ^/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 

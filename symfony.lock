@@ -1,11 +1,11 @@
 {
-    "api-platform/symfony": {
-        "version": "3.4",
+    "api-platform/core": {
+        "version": "4.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "3.3",
-            "ref": "74b45ac570c57eb1fbe56c984091a9ff87e18bab"
+            "version": "4.0",
+            "ref": "cb9e6b8ceb9b62f32d41fc8ad72a25d5bd674c6d"
         },
         "files": [
             "config/packages/api_platform.yaml",
@@ -191,18 +191,6 @@
         "files": [
             "config/packages/twig.yaml",
             "templates/base.html.twig"
-        ]
-    },
-    "symfony/uid": {
-        "version": "6.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.2",
-            "ref": "d294ad4add3e15d7eb1bae0221588ca89b38e558"
-        },
-        "files": [
-            "config/packages/uid.yaml"
         ]
     },
     "symfony/validator": {
