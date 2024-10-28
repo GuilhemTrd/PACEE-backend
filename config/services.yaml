@@ -23,3 +23,8 @@ services:
     App\EventListener\AuthenticationSuccessHandler:
         tags:
             - { name: 'kernel.event_listener', event: 'lexik_jwt_authentication.on_authentication_success', method: 'onAuthenticationSuccessResponse' }
+
+    App\Serializer\UserContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\UserContextBuilder.inner', '@security.helper' ]
+        autoconfigure: false

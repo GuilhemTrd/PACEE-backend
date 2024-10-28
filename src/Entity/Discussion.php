@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -8,42 +7,54 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DiscussionRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['discussion:read']],
+    denormalizationContext: ['groups' => ['discussion:write']]
+)]
 class Discussion
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['discussion:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'discussions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['discussion:read'])]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['discussion:read'])]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Groups(['discussion:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['discussion:read'])]
     private ?\DateTimeInterface $updated_at = null;
 
     #[ORM\Column]
+    #[Groups(['discussion:read'])]
     private ?bool $status = null;
 
     /**
      * @var Collection<int, DiscussionComment>
      */
     #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'discussion')]
+    #[Groups(['discussion:read'])]
     private Collection $discussionComments;
 
     /**
      * @var Collection<int, DiscussionLike>
      */
     #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'discussion')]
+    #[Groups(['discussion:read'])]
     private Collection $discussionLikes;
 
     public function __construct()
@@ -175,5 +186,38 @@ class Discussion
         }
 
         return $this;
+    }
+
+    #[Groups(['discussion:read'])]
+    public function getCommentCount(): int
+    {
+        return $this->discussionComments->count();
+    }
+
+    #[Groups(['discussion:read'])]
+    public function getLikeCount(): int
+    {
+        return $this->discussionLikes->count();
+    }
+
+    // Discussion.php
+
+    #[Groups(['discussion:read'])]
+    public function hasUserLiked(): bool
+    {
+        //Récupérer le user connecté
+        $user = $this->user;
+
+        if ($user === null) {
+            return false;
+        }
+
+        foreach ($this->discussionLikes as $like) {
+            if ($like->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

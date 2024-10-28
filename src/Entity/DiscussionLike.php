@@ -3,31 +3,52 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\DiscussionLikeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DiscussionLikeRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['discussion_like:read']],
+    denormalizationContext: ['groups' => ['discussion_like:write']]
+)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'user' => 'exact',
+    'discussion' => 'exact'
+])]
 class DiscussionLike
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['discussion_like:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'discussionLikes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['discussion_like:read', 'discussion_like:write'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'discussionLikes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['discussion_like:read', 'discussion_like:write'])]
     private ?Discussion $discussion = null;
 
     #[ORM\Column]
+    #[Groups(['discussion_like:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column]
+    #[Groups(['discussion_like:read', 'discussion_like:write'])]
     private ?bool $status = null;
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->status = true;
+    }
 
     public function getId(): ?int
     {
