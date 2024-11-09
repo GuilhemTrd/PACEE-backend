@@ -19,42 +19,42 @@ class Discussion
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'discussions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?\DateTimeInterface $updated_at = null;
 
     #[ORM\Column]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private ?bool $status = null;
 
     /**
      * @var Collection<int, DiscussionComment>
      */
     #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'discussion')]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private Collection $discussionComments;
 
     /**
      * @var Collection<int, DiscussionLike>
      */
     #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'discussion')]
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     private Collection $discussionLikes;
 
     public function __construct()
@@ -184,25 +184,22 @@ class Discussion
                 $discussionLike->setDiscussion(null);
             }
         }
-
         return $this;
     }
 
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     public function getCommentCount(): int
     {
         return $this->discussionComments->count();
     }
 
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     public function getLikeCount(): int
     {
         return $this->discussionLikes->count();
     }
 
-    // Discussion.php
-
-    #[Groups(['discussion:read'])]
+    #[Groups(['discussion:read', 'discussion:write'])]
     public function hasUserLiked(): bool
     {
         //Récupérer le user connecté
