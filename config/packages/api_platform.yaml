@@ -14,3 +14,8 @@ api_platform:
         extra_properties:
             standard_put: true
             rfc_7807_compliant_errors: true
+    collection:
+        pagination:
+            enabled: true
+            items_per_page_parameter_name: 'itemsPerPage'
+            page_parameter_name: 'page'

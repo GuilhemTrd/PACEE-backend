@@ -12,8 +12,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: DiscussionRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['discussion:read']],
-    denormalizationContext: ['groups' => ['discussion:write']]
+    denormalizationContext: ['groups' => ['discussion:write']],
+    order: ['created_at' => 'DESC'],
+    paginationClientEnabled: true,
+    paginationClientItemsPerPage: true,
+    paginationEnabled: true,
+    paginationItemsPerPage: 10,
+    paginationMaximumItemsPerPage: 50
 )]
+/**
+ * @ApiResource(
+ *     paginationItemsPerPage=10,
+ *     paginationMaximumItemsPerPage=50,
+ *     paginationClientItemsPerPage=true
+ * )
+ */
 class Discussion
 {
     #[ORM\Id]
