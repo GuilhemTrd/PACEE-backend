@@ -12,20 +12,25 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ApiResource]
+#[ApiResource(normalizationContext: ['groups' => ['user:read']], denormalizationContext: ['groups' => ['user:write']])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['user:read'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -40,21 +45,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $image_profile = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['user:read'])]
     private ?string $palmares = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $time_5k = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $time_10k = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $time_semi = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $time_marathon = null;
 
+    #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'user')]
+    private Collection $discussionComments;
+
+    #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'user')]
+    private Collection $discussionLikes;
+
+    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'user')]
+    private Collection $discussions;
+
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -66,26 +86,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, UserBadge>
      */
+
     #[ORM\OneToMany(targetEntity: UserBadge::class, mappedBy: 'user', orphanRemoval: true)]
+    #[Groups(['user:read'])]
     private Collection $userBadges;
-
-    /**
-     * @var Collection<int, Discussion>
-     */
-    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'user')]
-    private Collection $discussions;
-
-    /**
-     * @var Collection<int, DiscussionComment>
-     */
-    #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'user', orphanRemoval: true)]
-    private Collection $discussionComments;
-
-    /**
-     * @var Collection<int, DiscussionLike>
-     */
-    #[ORM\OneToMany(targetEntity: DiscussionLike::class, mappedBy: 'user')]
-    private Collection $discussionLikes;
 
     /**
      * @var Collection<int, Article>
@@ -476,5 +480,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // TODO: Implement eraseCredentials() method.
     }
 
+    #[Groups(['user:read'])]
+    public function getCountCommentaires(): int
+    {
+        return $this->discussionComments->count();
+    }
+
+    #[Groups(['user:read'])]
+    public function getCountLikes(): int
+    {
+        return $this->discussionLikes->count();
+    }
+
+    #[Groups(['user:read'])]
+    public function getCountDiscussions(): int
+    {
+        return $this->discussions->count();
+    }
 
 }

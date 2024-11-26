@@ -5,28 +5,33 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserBadgeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserBadgeRepository::class)]
 #[ApiResource]
 class UserBadge
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne(inversedBy: 'badge')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    #[Groups(['userBadge:read', 'user:read'])]
+    private ?int $id = null;
+
     #[ORM\ManyToOne(inversedBy: 'userBadges')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['userBadge:read', 'user:read'])]
     private ?Badge $badge = null;
 
     #[ORM\Column]
+    #[Groups(['userBadge:read', 'user:read'])]
     private ?\DateTimeImmutable $awarded_at = null;
 
     #[ORM\Column]
+    #[Groups(['userBadge:read', 'user:read'])]
     private ?bool $status = null;
 
     public function getId(): ?int
