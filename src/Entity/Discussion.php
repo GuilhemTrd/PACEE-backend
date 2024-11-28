@@ -60,6 +60,7 @@ class Discussion
      * @var Collection<int, DiscussionComment>
      */
     #[ORM\OneToMany(targetEntity: DiscussionComment::class, mappedBy: 'discussion')]
+    #[ORM\OrderBy(['created_at' => 'DESC'])]
     #[Groups(['discussion:read', 'discussion:write'])]
     private Collection $discussionComments;
 
