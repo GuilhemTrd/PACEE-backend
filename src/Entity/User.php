@@ -26,7 +26,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'discussion:read', 'userBadge:read', 'badge:read'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 180)]
@@ -118,6 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
+    #[Groups(['user:read', 'discussion:read', 'userBadge:read', 'badge:read'])]
     public function getUsername(): ?string
     {
         return $this->username;
