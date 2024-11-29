@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
 #[ORM\Entity(repositoryClass: DiscussionRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['discussion:read']],
@@ -163,7 +164,6 @@ class Discussion
     public function removeDiscussionComment(DiscussionComment $discussionComment): static
     {
         if ($this->discussionComments->removeElement($discussionComment)) {
-            // set the owning side to null (unless already changed)
             if ($discussionComment->getDiscussion() === $this) {
                 $discussionComment->setDiscussion(null);
             }
@@ -193,7 +193,6 @@ class Discussion
     public function removeDiscussionLike(DiscussionLike $discussionLike): static
     {
         if ($this->discussionLikes->removeElement($discussionLike)) {
-            // set the owning side to null (unless already changed)
             if ($discussionLike->getDiscussion() === $this) {
                 $discussionLike->setDiscussion(null);
             }
@@ -216,7 +215,6 @@ class Discussion
     #[Groups(['discussion:read', 'discussion:write'])]
     public function hasUserLiked(): bool
     {
-        //Récupérer le user connecté
         $user = $this->user;
 
         if ($user === null) {
