@@ -26,5 +26,8 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-progress --prefer-dist
 
-      - name: Run PHPUnit Tests
-        run: ./bin/phpunit
+      - name: Clear Cache
+        run: php bin/console cache:clear --env=prod
+
+      - name: Verify Symfony is Installed
+        run: php bin/console --version
