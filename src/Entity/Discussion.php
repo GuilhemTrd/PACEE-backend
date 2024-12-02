@@ -1,6 +1,7 @@
 <?php
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\DiscussionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -8,9 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 
 #[ORM\Entity(repositoryClass: DiscussionRepository::class)]
+#[ApiFilter(OrderFilter::class, properties: ['created_at', 'likeCount'], arguments: ['orderParameterName' => 'order'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['discussion:read']],
     denormalizationContext: ['groups' => ['discussion:write']],

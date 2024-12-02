@@ -8,3 +8,7 @@ gesdinet_jwt_refresh_token:
     path: /token/refresh
     controller: gesdinet.jwtrefreshtoken::refresh
     methods: [POST]
+
+discussion_filter:
+    resource: '../src/Controller/DiscussionFilterController.php'
+    type: annotation
