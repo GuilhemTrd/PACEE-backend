@@ -48,7 +48,6 @@ class Article
     public function __construct()
     {
         $this->articleLikes = new ArrayCollection();
-        $this->articleComments = new ArrayCollection();
     }
 
     public function getId(): ?int
