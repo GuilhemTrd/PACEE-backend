@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserBadgeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserBadgeRepository::class)]
 #[ApiResource]
@@ -26,8 +27,9 @@ class UserBadge
     #[Groups(['userBadge:read', 'user:read'])]
     private ?Badge $badge = null;
 
-    #[ORM\Column]
-    #[Groups(['userBadge:read', 'user:read'])]
+    #[ORM\Column(name: "awarded_at", type: "datetime_immutable")]
+    #[Groups(['userBadge:read', 'user:read', 'userBadge:write'])]
+    #[SerializedName("awarded_at")]
     private ?\DateTimeImmutable $awarded_at = null;
 
     #[ORM\Column]
@@ -63,12 +65,12 @@ class UserBadge
         return $this;
     }
 
-    public function getAwardedAt(): ?\DateTimeImmutable
+    public function getAwarded_at(): ?\DateTimeImmutable
     {
         return $this->awarded_at;
     }
 
-    public function setAwardedAt(\DateTimeImmutable $awarded_at): static
+    public function setAwarded_at(\DateTimeImmutable $awarded_at): static
     {
         $this->awarded_at = $awarded_at;
 
