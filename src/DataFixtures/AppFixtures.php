@@ -191,14 +191,12 @@ class AppFixtures extends Fixture
         }
 
         foreach ($discussions as $discussion) {
-            // Ajouter des commentaires
             $numComments = random_int(10, 20);
             foreach (range(1, $numComments) as $j) {
                 $comment = new DiscussionComment();
                 $comment->setUser($users[array_rand($users)]);
                 $comment->setDiscussion($discussion);
-                $commentContent = "Ceci est un commentaire sur la discussion " . $discussion->getContent();
-                $comment->setContent($commentContent);
+                $comment->setContent("Ceci est un commentaire sur la discussion : {$discussion->getContent()}");
                 $comment->setCreatedAt(new \DateTimeImmutable());
                 $comment->setUpdatedAt(new \DateTime());
                 $comment->setStatus(true);
@@ -206,7 +204,6 @@ class AppFixtures extends Fixture
                 $manager->persist($comment);
             }
 
-            // Ajouter des likes
             $numLikes = random_int(20, 50);
             foreach (range(1, $numLikes) as $k) {
                 $like = new DiscussionLike();
@@ -218,5 +215,6 @@ class AppFixtures extends Fixture
                 $manager->persist($like);
             }
         }
+
     }
 }
