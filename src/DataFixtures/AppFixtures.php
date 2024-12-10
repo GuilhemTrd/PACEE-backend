@@ -136,20 +136,39 @@ class AppFixtures extends Fixture
             'Les meilleures chaussures de trail pour les terrains techniques',
             'Les bâtons de trail : essentiels ou superflus ?',
             'L\'importance de la nutrition en trail',
+            'Les meilleurs sacs à dos pour le trail',
+            'Comment choisir son entraînement de trail ?',
+            'Les blessures courantes en trail et comment les prévenir',
+            'Les montées courtes vs les montées longues en trail',
+            'L\'équipement minimaliste pour le trail',
         ];
 
-        foreach ($titles as $index => $title) {
+        $descriptions = [
+            'Découvrez notre sélection des vestes Gore-Tex idéales pour affronter toutes les conditions météorologiques.',
+            'Découvrez notre analyse des meilleures lampes frontales pour vos courses de nuit.',
+            'Découvrez quelles chaussures de trail offrent le meilleur grip et confort pour les terrains les plus difficiles.',
+            'Les bâtons de trail peuvent être un atout, mais sont-ils vraiment nécessaires pour tous les coureurs de trail ?',
+            'Apprenez comment adapter votre alimentation pour optimiser vos performances en trail.',
+        ];
+
+        $numArticles = random_int(30, 40); // Générer entre 30 et 40 articles
+
+        foreach (range(1, $numArticles) as $index) {
+            $title = $titles[array_rand($titles)];
+            $description = $descriptions[array_rand($descriptions)];
+
             $article = new Article();
-            $article->setTitle($title);
-            $article->setDescription("Description générée automatiquement pour l'article : $title");
-            $article->setContent("<p>Contenu généré automatiquement pour l'article : $title</p>");
-            $article->setCreatedAt(new \DateTimeImmutable(sprintf('2024-12-%02d 14:00:00', $index + 1)));
-            $article->setUpdatedAt(new \DateTime(sprintf('2024-12-%02d 14:30:00', $index + 1)));
+            $article->setTitle("$title $index"); // Ajouter un numéro pour différencier les articles
+            $article->setDescription("Description : $description (Article $index)");
+            $article->setContent("<p>Contenu généré automatiquement pour l'article : $title (Article $index)</p>");
+            $article->setCreatedAt(new \DateTimeImmutable(sprintf('2024-12-%02d 14:00:00', ($index % 30) + 1)));
+            $article->setUpdatedAt(new \DateTime(sprintf('2024-12-%02d 14:30:00', ($index % 30) + 1)));
             $article->setStatus(true);
 
             $manager->persist($article);
         }
     }
+
 
     /**
      * @throws RandomException
