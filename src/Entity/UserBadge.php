@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\UserBadgeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -10,6 +12,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserBadgeRepository::class)]
 #[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['user.id' => 'exact', 'badge.name' => 'exact'])]
 class UserBadge
 {
     #[ORM\ManyToOne(inversedBy: 'badge')]
@@ -65,12 +68,12 @@ class UserBadge
         return $this;
     }
 
-    public function getAwarded_at(): ?\DateTimeImmutable
+    public function getAwardedAt(): ?\DateTimeImmutable
     {
         return $this->awarded_at;
     }
 
-    public function setAwarded_at(\DateTimeImmutable $awarded_at): static
+    public function setAwardedAt(\DateTimeImmutable $awarded_at): static
     {
         $this->awarded_at = $awarded_at;
 

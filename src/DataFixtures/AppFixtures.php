@@ -121,7 +121,7 @@ class AppFixtures extends Fixture
             $userBadge->setUser($user);
             $badge = ($index % 2 === 0) ? $badges[0] : $badges[1];
             $userBadge->setBadge($badge);
-            $userBadge->setAwarded_at(new \DateTimeImmutable());
+            $userBadge->setAwardedAt(new \DateTimeImmutable());
             $userBadge->setStatus(true);
 
             $manager->persist($userBadge);

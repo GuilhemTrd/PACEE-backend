@@ -9,9 +9,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 
 #[ORM\Entity(repositoryClass: BadgeRepository::class)]
 #[ApiResource(normalizationContext: ['groups' => ['badge:read']], denormalizationContext: ['groups' => ['badge:write']])]
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'exact'])]
 class Badge
 {
     #[ORM\Id]
