@@ -50,17 +50,14 @@ jobs:
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      - name: Debug Environment Variables
-        run: |
-          echo "Environment variables:"
-          cat .env
-          cat .env.test
+      - name: Install OpenSSL
+        run: sudo apt-get update && sudo apt-get install -y openssl
 
       - name: Generate JWT Keys
         run: |
           mkdir -p config/jwt
           openssl genrsa -out config/jwt/private.pem -aes256 -passout pass:${{ secrets.JWT_PASSPHRASE }} 4096
-          openss
+          openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem -passin pass:${{ secrets.JWT_PASSPHRASE }}
 
       - name: Clear Symfony Cache
         run: php bin/console cache:clear --env=test
