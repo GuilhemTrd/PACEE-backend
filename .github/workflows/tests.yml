@@ -40,19 +40,13 @@ jobs:
             sleep 2
           done
 
-      - name: Check MySQL connection
-        run: mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
-
       - name: Create database and schema
         run: |
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
-      - name: Clear cache
-        run: php bin/console cache:clear
-
-      - name: Debugging PHPUnit
-        run: php bin/phpunit --debug --colors=always
+      - name: Debug PHPUnit - List Tests
+        run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
 
       - name: Run PHPUnit
-        run: php bin/phpunit --colors=always
+        run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
