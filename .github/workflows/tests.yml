@@ -7,8 +7,28 @@ on:
   pull_request:
 
 jobs:
-  test:
+  initialization:
+    name: Initialization
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+          cp .env.test .env
+
+  database:
+    name: Configure Database
+    runs-on: ubuntu-latest
+    needs: initialization
 
     services:
       mysql:
@@ -28,11 +48,6 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Install dependencies
-        run: |
-          composer install --prefer-dist --no-progress
-          cp .env.test .env
-
       - name: Wait for MySQL
         run: |
           until mysqladmin ping -h 127.0.0.1 --silent; do
@@ -44,6 +59,15 @@ jobs:
         run: |
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
+
+  jwt:
+    name: Configure Environment & JWT Keys
+    runs-on: ubuntu-latest
+    needs: database
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set environment variables
         run: |
@@ -63,6 +87,20 @@ jobs:
           ls -l config/jwt/
           cat config/jwt/private.pem || echo "Private key not found"
           cat config/jwt/public.pem || echo "Public key not found"
+
+  tests:
+    name: Run PHPUnit Tests
+    runs-on: ubuntu-latest
+    needs: jwt
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
 
       - name: Run PHPUnit
         run: |
