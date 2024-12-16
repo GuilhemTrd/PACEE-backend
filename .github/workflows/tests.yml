@@ -47,11 +47,7 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
-
-      - name: Install OpenSSL
-        run: sudo apt-get update && sudo apt-get install -y openssl
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test.local
 
       - name: Generate JWT Keys
         run: |
@@ -62,14 +58,14 @@ jobs:
       - name: Clear Symfony Cache
         run: php bin/console cache:clear --env=test
 
-      - name: Check JWT Keys
+      - name: Debug JWT Key Files
         run: |
           ls -l config/jwt/
           cat config/jwt/private.pem || echo "Private key not found"
           cat config/jwt/public.pem || echo "Public key not found"
 
-      - name: Debug PHPUnit - List Tests
-        run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
-
       - name: Run PHPUnit
-        run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
+        run: |
+          export APP_ENV=test
+          export JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
+          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
