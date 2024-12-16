@@ -13,7 +13,6 @@ class ApiAuthControllerTest extends WebTestCase
      */
     public function testRegisterSuccess(): void
     {
-        // Créer le client HTTP
         $client = static::createClient();
         $container = static::getContainer();
 
@@ -26,7 +25,7 @@ class ApiAuthControllerTest extends WebTestCase
         }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Effectuer une requête POST
+        // Requête POST vers /register
         $client->jsonRequest('POST', '/register', [
             'firstname' => 'John',
             'lastname' => 'Doe',
@@ -34,10 +33,8 @@ class ApiAuthControllerTest extends WebTestCase
             'password' => 'Password123',
         ]);
 
-        // Vérifier que le code de réponse est 201 (Created)
         $this->assertResponseStatusCodeSame(201);
 
-        // Vérifier le contenu JSON de la réponse
         $responseContent = $client->getResponse()->getContent();
         $this->assertJson($responseContent);
 
@@ -45,4 +42,28 @@ class ApiAuthControllerTest extends WebTestCase
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals('User registered successfully', $responseData['message']);
     }
+
+    /**
+     * @covers \App\Controller\ApiAuthController::login
+     */
+    public function testLoginFailure(): void
+    {
+        $client = static::createClient();
+
+        // Requête POST vers /login avec des identifiants invalides
+        $client->jsonRequest('POST', '/login', [
+            'email' => 'invalid_user@example.com',
+            'password' => 'invalid_password',
+        ]);
+
+        $this->assertResponseStatusCodeSame(401);
+
+        $responseContent = $client->getResponse()->getContent();
+        $this->assertJson($responseContent);
+
+        $responseData = json_decode($responseContent, true);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('Invalid credentials.', $responseData['message']); // Mise à jour ici
+    }
+
 }
