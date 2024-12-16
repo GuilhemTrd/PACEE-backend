@@ -45,6 +45,10 @@ jobs:
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
+      - name: Set environment variables
+        run: |
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
+
       - name: Debug PHPUnit - List Tests
         run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
 
