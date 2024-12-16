@@ -7,9 +7,8 @@ on:
   pull_request:
 
 jobs:
-  # Étape 1 : Initialisation des tests
-  initialisation-tests:
-    name: 🚀 Initialisation Tests
+  # Étape 1: Initialisation du projet et création de la base de données
+  initialize:
     runs-on: ubuntu-latest
 
     services:
@@ -47,14 +46,10 @@ jobs:
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
-      - name: Run Initialisation Tests
-        run: php bin/phpunit --filter SetupTest --configuration phpunit.xml --colors=always --debug
-
-  # Étape 2 : Tests d'authentification
-  authentication-tests:
-    name: 🔑 Authentification Tests
+  # Étape 2: Tests liés à l'authentification
+  authentication:
     runs-on: ubuntu-latest
-    needs: initialisation-tests
+    needs: initialize
 
     services:
       mysql:
@@ -74,31 +69,20 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Install dependencies
+      - name: Set environment variables
         run: |
-          composer install --prefer-dist --no-progress
-          cp .env.test .env
+          echo "\n" >> .env
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
+          echo "\n" >> .env.test
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      - name: Wait for MySQL
-        run: |
-          until mysqladmin ping -h 127.0.0.1 --silent; do
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-
-      - name: Create database and schema
-        run: |
-          php bin/console doctrine:database:create --if-not-exists --env=test
-          php bin/console doctrine:schema:update --force --env=test
-
-      - name: Run Auth Tests
+      - name: Run Authentication Tests
         run: php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
 
-  # Étape 3 : Tests globaux
-  all-tests:
-    name: ✅ Exécution Globale des Tests
+  # Étape 3: Exécution complète des tests
+  run-all-tests:
     runs-on: ubuntu-latest
-    needs: [initialisation-tests, authentication-tests]
+    needs: [initialize, authentication]
 
     services:
       mysql:
@@ -118,22 +102,15 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Install dependencies
+      - name: Set environment variables
         run: |
-          composer install --prefer-dist --no-progress
-          cp .env.test .env
+          echo "\n" >> .env
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
+          echo "\n" >> .env.test
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      - name: Wait for MySQL
-        run: |
-          until mysqladmin ping -h 127.0.0.1 --silent; do
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
+      - name: Debug PHPUnit - List Tests
+        run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
 
-      - name: Create database and schema
-        run: |
-          php bin/console doctrine:database:create --if-not-exists --env=test
-          php bin/console doctrine:schema:update --force --env=test
-
-      - name: Run All Tests
+      - name: Run Full PHPUnit
         run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
