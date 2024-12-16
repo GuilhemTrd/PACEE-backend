@@ -52,8 +52,17 @@ jobs:
           echo "\n" >> .env.test
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      - name: Debug PHPUnit - List Tests
-        run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
+      # Étape 1 : Initialisation des tests
+      - name: Initialisation Tests
+        run: |
+          php bin/phpunit --filter SetupTest --configuration phpunit.xml --colors=always --debug
 
-      - name: Run PHPUnit
-        run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
+      # Étape 2 : Tests d'authentification
+      - name: Authentication Tests
+        run: |
+          php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
+
+      # Étape 3 : Autres tests
+      - name: Run All Tests
+        run: |
+          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
