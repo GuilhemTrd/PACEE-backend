@@ -56,6 +56,12 @@ jobs:
           cat .env
           cat .env.test
 
+      - name: Generate JWT Keys
+        run: |
+          mkdir -p config/jwt
+          openssl genrsa -out config/jwt/private.pem -aes256 -passout pass:${{ secrets.JWT_PASSPHRASE }} 4096
+          openss
+
       - name: Clear Symfony Cache
         run: php bin/console cache:clear --env=test
 
