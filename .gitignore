@@ -72,7 +72,6 @@ node_modules/
 ###< symfony/phpunit-bridge ###
 
 ###> phpunit/phpunit ###
-/phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 /.phpunit.cache/test-results
