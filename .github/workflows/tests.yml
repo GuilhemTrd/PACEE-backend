@@ -7,7 +7,9 @@ on:
   pull_request:
 
 jobs:
-  test:
+  # Job 1 : Initialisation
+  initialization:
+    name: Initialisation
     runs-on: ubuntu-latest
 
     services:
@@ -20,11 +22,6 @@ jobs:
           - 3306:3306
 
     steps:
-      # Étape 1 : Initialisation
-      - name: Initialisation
-        run: |
-          echo "Étape : Initialisation"
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -69,8 +66,45 @@ jobs:
           cat config/jwt/private.pem || echo "Private key not found"
           cat config/jwt/public.pem || echo "Public key not found"
 
-      # Étape 2 : Lancement des tests
-      - name: Lancement des tests
+      - name: Save Initialization Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: init-artifacts
+          path: |
+            config/jwt/
+            .env.test.local
+
+  # Job 2 : Lancement des tests
+  run-tests:
+    name: Lancement des tests
+    runs-on: ubuntu-latest
+    needs: initialization
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: paceeDB
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Download Initialization Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: init-artifacts
+          path: config/jwt/
+
+      - name: Run PHPUnit Tests
         run: |
           export APP_ENV=test
           export JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
