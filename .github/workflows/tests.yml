@@ -7,7 +7,9 @@ on:
   pull_request:
 
 jobs:
-  test:
+  # Étape 1 : Initialisation des tests
+  initialisation-tests:
+    name: 🚀 Initialisation Tests
     runs-on: ubuntu-latest
 
     services:
@@ -45,24 +47,93 @@ jobs:
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
-      - name: Set environment variables
-        run: |
-          echo "\n" >> .env
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
-          echo "\n" >> .env.test
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
+      - name: Run Initialisation Tests
+        run: php bin/phpunit --filter SetupTest --configuration phpunit.xml --colors=always --debug
 
-      # Étape 1 : Initialisation des tests
-      - name: Initialisation Tests
-        run: |
-          php bin/phpunit --filter SetupTest --configuration phpunit.xml --colors=always --debug
+  # Étape 2 : Tests d'authentification
+  authentication-tests:
+    name: 🔑 Authentification Tests
+    runs-on: ubuntu-latest
+    needs: initialisation-tests
 
-      # Étape 2 : Tests d'authentification
-      - name: Authentication Tests
-        run: |
-          php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: paceeDB
+        ports:
+          - 3306:3306
 
-      # Étape 3 : Autres tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+          cp .env.test .env
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Create database and schema
+        run: |
+          php bin/console doctrine:database:create --if-not-exists --env=test
+          php bin/console doctrine:schema:update --force --env=test
+
+      - name: Run Auth Tests
+        run: php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
+
+  # Étape 3 : Tests globaux
+  all-tests:
+    name: ✅ Exécution Globale des Tests
+    runs-on: ubuntu-latest
+    needs: [initialisation-tests, authentication-tests]
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: paceeDB
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+          cp .env.test .env
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Create database and schema
+        run: |
+          php bin/console doctrine:database:create --if-not-exists --env=test
+          php bin/console doctrine:schema:update --force --env=test
+
       - name: Run All Tests
-        run: |
-          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
+        run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
