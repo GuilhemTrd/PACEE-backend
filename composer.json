@@ -30,6 +30,7 @@
         "symfony/monolog-bundle": "^3.10",
         "symfony/property-access": "6.4.*",
         "symfony/property-info": "6.4.*",
+        "symfony/routing": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
         "symfony/serializer": "6.4.*",
@@ -74,7 +75,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "phpunit": "php bin/phpunit --colors=always"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -87,6 +89,11 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",
-        "symfony/maker-bundle": "^1.61"
+        "nunomaduro/collision": "^7.11",
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "6.4.*",
+        "symfony/css-selector": "6.4.*",
+        "symfony/maker-bundle": "^1.61",
+        "symfony/phpunit-bridge": "^7.2"
     }
 }
