@@ -20,7 +20,6 @@ jobs:
           - 3306:3306
 
     steps:
-      # Étape 1 : Initialisation
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -34,7 +33,6 @@ jobs:
           composer install --prefer-dist --no-progress
           cp .env.test .env
 
-      # Étape 2 : Configuration de la base de données
       - name: Wait for MySQL
         run: |
           until mysqladmin ping -h 127.0.0.1 --silent; do
@@ -49,19 +47,13 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "\n" >> .env
+          echo "" >> .env
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
-          echo "\n" >> .env.test
+          echo "" >> .env.test
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      # Étape 3 : Debug - Afficher les tests disponibles
       - name: Debug PHPUnit - List Tests
         run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
 
-      # Étape 4 : Exécution des tests d'authentification
-      - name: Run Authentication Tests
-        run: php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
-
-      # Étape 5 : Exécution de tous les tests
-      - name: Run All Tests
+      - name: Run PHPUnit
         run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
