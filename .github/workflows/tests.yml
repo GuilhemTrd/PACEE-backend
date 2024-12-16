@@ -18,11 +18,6 @@ jobs:
           MYSQL_DATABASE: paceeDB
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -40,16 +35,21 @@ jobs:
 
       - name: Wait for MySQL
         run: |
-          until mysqladmin ping -h 127.0.0.1 -u root --password=root --silent; do
+          until mysqladmin ping -h 127.0.0.1 --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
 
+      - name: Check MySQL connection
+        run: mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
+
       - name: Create database and schema
         run: |
-          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
+      - name: Debugging PHPUnit
+        run: php bin/phpunit --debug --colors=always
+
       - name: Run PHPUnit
-        run: |
-          php bin/phpunit --colors=always
+        run: php bin/phpunit --colors=always
