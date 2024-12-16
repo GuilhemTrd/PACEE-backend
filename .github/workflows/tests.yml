@@ -48,6 +48,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
+          cat .env # Ajout pour vérifier si la variable est bien écrite
 
       - name: Debug PHPUnit - List Tests
         run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
