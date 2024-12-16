@@ -7,8 +7,7 @@ on:
   pull_request:
 
 jobs:
-  # Étape 1: Initialisation du projet et création de la base de données
-  initialize:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -21,6 +20,7 @@ jobs:
           - 3306:3306
 
     steps:
+      # Étape 1 : Initialisation
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -34,6 +34,7 @@ jobs:
           composer install --prefer-dist --no-progress
           cp .env.test .env
 
+      # Étape 2 : Configuration de la base de données
       - name: Wait for MySQL
         run: |
           until mysqladmin ping -h 127.0.0.1 --silent; do
@@ -46,29 +47,6 @@ jobs:
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
-  # Étape 2: Tests liés à l'authentification
-  authentication:
-    runs-on: ubuntu-latest
-    needs: initialize
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: paceeDB
-        ports:
-          - 3306:3306
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-
       - name: Set environment variables
         run: |
           echo "\n" >> .env
@@ -76,41 +54,14 @@ jobs:
           echo "\n" >> .env.test
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
 
-      - name: Run Authentication Tests
-        run: php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
-
-  # Étape 3: Exécution complète des tests
-  run-all-tests:
-    runs-on: ubuntu-latest
-    needs: [initialize, authentication]
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: paceeDB
-        ports:
-          - 3306:3306
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-
-      - name: Set environment variables
-        run: |
-          echo "\n" >> .env
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
-          echo "\n" >> .env.test
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
-
+      # Étape 3 : Debug - Afficher les tests disponibles
       - name: Debug PHPUnit - List Tests
         run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
 
-      - name: Run Full PHPUnit
+      # Étape 4 : Exécution des tests d'authentification
+      - name: Run Authentication Tests
+        run: php bin/phpunit --filter ApiAuthControllerTest --configuration phpunit.xml --colors=always --debug
+
+      # Étape 5 : Exécution de tous les tests
+      - name: Run All Tests
         run: php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
