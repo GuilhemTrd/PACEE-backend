@@ -47,10 +47,23 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "" >> .env
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env
-          echo "" >> .env.test
           echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test
+
+      - name: Debug Environment Variables
+        run: |
+          echo "Environment variables:"
+          cat .env
+          cat .env.test
+
+      - name: Clear Symfony Cache
+        run: php bin/console cache:clear --env=test
+
+      - name: Check JWT Keys
+        run: |
+          ls -l config/jwt/
+          cat config/jwt/private.pem || echo "Private key not found"
+          cat config/jwt/public.pem || echo "Public key not found"
 
       - name: Debug PHPUnit - List Tests
         run: php bin/phpunit --list-tests --configuration phpunit.xml --colors=always --debug
