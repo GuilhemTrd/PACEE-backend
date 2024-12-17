@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\User;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,14 +13,32 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class ApiAuthController extends AbstractController
 {
+
     #[Route('/login', name: 'api_login', methods: ['POST'])]
-    public function login(AuthenticationUtils $authenticationUtils): JsonResponse
+    public function login(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-        // Si cette méthode est appelée, l'authentification a échoué
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (!$email || !$password) {
+            return $this->json(['message' => 'Missing credentials'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+        if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
+            return $this->json(['message' => 'Invalid credentials.'], Response::HTTP_UNAUTHORIZED);
+        }
+        if (!$user->isStatus()) {
+            return $this->json(['message' => 'Account is inactive.'], Response::HTTP_UNAUTHORIZED);
+        }
+
         return $this->json([
-            'message' => 'Authentication failed',
-        ], Response::HTTP_UNAUTHORIZED);
+            'message' => 'Authentication successful',
+            'token' => 'fake_jwt_token',
+        ], Response::HTTP_OK);
     }
+
 
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(
@@ -32,23 +49,19 @@ class ApiAuthController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
-        // Récupération des champs
         $firstname = $data['firstname'] ?? null;
         $lastname = $data['lastname'] ?? null;
         $email = $data['email'] ?? null;
         $password = $data['password'] ?? null;
 
-        // Validation des champs non nullable
         if (!$firstname || !$lastname || !$email || !$password) {
             return $this->json(['message' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Vérifier si l'email est valide
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->json(['message' => 'Invalid email format'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Vérifier si le mot de passe respecte les critères
         $uppercase = preg_match('@[A-Z]@', $password);
         $number = preg_match('@[0-9]@', $password);
         $length = strlen($password) >= 8;
@@ -59,12 +72,10 @@ class ApiAuthController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // Vérifier si l'utilisateur existe déjà
         if ($userRepository->findOneBy(['email' => $email])) {
             return $this->json(['message' => 'User already exists'], Response::HTTP_CONFLICT);
         }
 
-        // Créer un nouvel utilisateur
         $user = new User();
         $user->setUsername($firstname . ' ' . $lastname);
         $user->setEmail($email);
@@ -74,10 +85,8 @@ class ApiAuthController extends AbstractController
         $user->setPassword($hashedPassword);
         $user->setStatus(true);
 
-        // Renseigner la date de création (non nullable)
         $user->setCreatedAt(new \DateTimeImmutable());
 
-        // Enregistrer l'utilisateur dans la base de données
         $entityManager->persist($user);
         $entityManager->flush();
 

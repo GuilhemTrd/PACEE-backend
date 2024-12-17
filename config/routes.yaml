@@ -11,7 +11,7 @@ gesdinet_jwt_refresh_token:
 
 discussion_filter:
     resource: '../src/Controller/DiscussionFilterController.php'
-    type: annotation
+    type: attribute
 
 upload_image:
     path: /api/articles/upload-image
