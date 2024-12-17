@@ -88,4 +88,4 @@ jobs:
         run: |
           export APP_ENV=test
           export JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
-          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug
+          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug --group authentication 
