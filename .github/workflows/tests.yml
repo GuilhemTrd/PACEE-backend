@@ -59,14 +59,11 @@ jobs:
       - name: Clear Symfony Cache
         run: php bin/console cache:clear --env=test
 
-      - name: Save Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: |
-            config/jwt/
-            vendor/
-            .env.test.local
+      - name: Debug JWT Key Files
+        run: |
+          ls -l config/jwt/
+          cat config/jwt/private.pem || echo "Private key not found"
+          cat config/jwt/public.pem || echo "Public key not found"  
 
   run-tests:
     name: Lancement des tests
@@ -91,11 +88,12 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-          path: .
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
 
       - name: Lancement des tests
         run: |
