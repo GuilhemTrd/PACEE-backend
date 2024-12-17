@@ -7,8 +7,7 @@ on:
   pull_request:
 
 jobs:
-  initialization:
-    name: Initialisation
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -21,71 +20,56 @@ jobs:
           - 3306:3306
 
     steps:
-      - name: ✅ Checkout code
+      - name: 🚀 Initialisation
+        run: |
+          echo "Étape : Initialisation"
+
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up PHP
+      - name: ⚙️ Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.3
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: |
           composer install --prefer-dist --no-progress
           cp .env.test .env
 
-      - name: Create database and schema
+      - name: 🕒 Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: 🛠️ Create database and schema
         run: |
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:schema:update --force --env=test
 
-      - name: Generate JWT Keys
+      - name: 🔑 Set environment variables
+        run: |
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.test.local
+
+      - name: 🔐 Generate JWT Keys
         run: |
           mkdir -p config/jwt
           openssl genrsa -out config/jwt/private.pem -aes256 -passout pass:${{ secrets.JWT_PASSPHRASE }} 4096
           openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem -passin pass:${{ secrets.JWT_PASSPHRASE }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: project-files
-          path: |
-            vendor
-            config/jwt
-            .env.test
-            phpunit.xml
+      - name: 🧹 Clear Symfony Cache
+        run: php bin/console cache:clear --env=test
 
-  run-tests:
-    name: Lancement des tests
-    runs-on: ubuntu-latest
-    needs: initialization
+      - name: 🕵️ Debug JWT Key Files
+        run: |
+          ls -l config/jwt/
+          cat config/jwt/private.pem || echo "Private key not found"
+          cat config/jwt/public.pem || echo "Public key not found"
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: paceeDB
-        ports:
-          - 3306:3306
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: project-files
-          path: .
-
-      - name: 🔒Lancement des tests - Authentification
+      - name: 🔒 Lancement des tests - Authentification
         run: |
           export APP_ENV=test
           export JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
-          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug --group authentication 
+          php bin/phpunit --configuration phpunit.xml tests --colors=always --debug --group authentication
