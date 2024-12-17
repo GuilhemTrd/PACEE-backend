@@ -8,6 +8,31 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 class ApiAuthControllerTest extends WebTestCase
 {
+
+    /**
+     * @covers \App\Controller\ApiAuthController::register
+     * @group authentication
+     */
+    public function testRegisterWithMissingFields(): void
+    {
+        $client = static::createClient();
+
+        // Requête POST sans le champ 'email'
+        $client->jsonRequest('POST', '/register', [
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'password' => 'Password123',
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+
+        $responseContent = $client->getResponse()->getContent();
+        $this->assertJson($responseContent);
+
+        $responseData = json_decode($responseContent, true);
+        $this->assertEquals('Missing required fields', $responseData['message']);
+    }
+
     /**
      * @covers \App\Controller\ApiAuthController::register
      * @group authentication
