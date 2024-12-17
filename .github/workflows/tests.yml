@@ -21,7 +21,7 @@ jobs:
           - 3306:3306
 
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout code
         uses: actions/checkout@v3
 
       - name: Set up PHP
@@ -84,7 +84,7 @@ jobs:
           name: project-files
           path: .
 
-      - name: Lancement des tests
+      - name: 🔒Lancement des tests - Authentification
         run: |
           export APP_ENV=test
           export JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}
