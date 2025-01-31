@@ -69,4 +69,41 @@ class UserController
         }
     }
 
+    #[Route('/api/users/{id}', name: 'update_user', methods: ['PUT'])]
+    public function updateUser(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+
+            if (isset($data['username'])) {
+                $user->setUsername($data['username']);
+            }
+            if (isset($data['email'])) {
+                $user->setEmail($data['email']);
+            }
+            if (isset($data['palmares'])) {
+                $user->setPalmares($data['palmares']);
+            }
+            if (isset($data['time_5k'])) {
+                $user->setTime5k(new \DateTime($data['time_5k']));
+            }
+            if (isset($data['time_10k'])) {
+                $user->setTime10k(new \DateTime($data['time_10k']));
+            }
+            if (isset($data['time_semi'])) {
+                $user->setTimeSemi(new \DateTime($data['time_semi']));
+            }
+            if (isset($data['time_marathon'])) {
+                $user->setTimeMarathon(new \DateTime($data['time_marathon']));
+            }
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return new JsonResponse(['message' => 'Profil mis à jour avec succès'], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur lors de la mise à jour du profil : ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
