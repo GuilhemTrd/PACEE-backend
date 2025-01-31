@@ -31,7 +31,7 @@
         "symfony/property-access": "6.4.*",
         "symfony/property-info": "6.4.*",
         "symfony/routing": "6.4.*",
-        "symfony/runtime": "6.4.*",
+        "symfony/runtime": "^7.2",
         "symfony/security-bundle": "6.4.*",
         "symfony/serializer": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
