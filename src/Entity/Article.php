@@ -23,11 +23,11 @@ use ApiPlatform\Metadata\GetCollection;
 #[ApiResource(
     operations: [
         new Get(),
-        new Put(),
-        new Patch(),
-        new Delete(),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Patch(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
         new GetCollection(),
-        new Post(),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['article:read']],
     denormalizationContext: ['groups' => ['article:write']],

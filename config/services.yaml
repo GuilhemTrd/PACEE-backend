@@ -40,6 +40,8 @@ services:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
 
-
+    App\EventListener\AccessDeniedListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
 
 
