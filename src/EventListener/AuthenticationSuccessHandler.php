@@ -44,8 +44,9 @@ class AuthenticationSuccessHandler
         // Dans l'événement de génération de token
         $data['user'] = [
             'id' => $user->getId(),
-            'email' => $user->getEmail(), // Assure-toi que l'email est utilisé
+            'email' => $user->getEmail(),
             'full_name' => $user->getFullName(),
+            'roles' => $user->getRoles(),
         ];
 
         // Log des informations utilisateur
